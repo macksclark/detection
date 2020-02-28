@@ -3,7 +3,7 @@
 # 
 # Fine tuning the torchvision model zoo faster rcnn models on a small
 # synthetic dataset.
-# Requires python 3.7, torchvision 0.3.0, pytorch 1.1.0
+# Requires python 3.7, torchvision 0.4.2, pytorch 1.3.1
 #########################################
 
 import os
@@ -13,7 +13,7 @@ from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
 
 from vision_utils.engine import train_one_epoch, evaluate
-import vision_utils.utils
+from vision_utils import utils
 from global_vars import *
 from synthdata_loader import SynthData
 
@@ -29,7 +29,9 @@ def load_frcnn(object_specific=False):
     if object_specific:
         # Read the dataset object files to know how many outputs there should be
         # num_clases = read file
-        pass
+        with open(OBJ_LIST, 'r') as f:
+            ids = f.read().splitlines()
+        num_classes = len(ids)
     else:
         num_classes = 2
         
@@ -67,7 +69,10 @@ class FineTuner(object):
         self.train_epochs = TRAIN_EPOCHS
 
         # Check to see if CUDA available.
-        self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+        if torch.cuda.is_available():
+            self.device = torch.device('cuda')
+        else:
+            self.device = torch.device('cpu')
     
     def load_data(self):
         '''
@@ -137,8 +142,10 @@ class FineTuner(object):
         with torch.no_grad():
             prediction = self.model([img.to(self.device)])
 
+        print(prediction)
         # TODO: save prediction or display it?
 
 
 if __name__ == "__main__":
-    FineTuner()
+    fine_tuner = FineTuner()
+    finer_tuner.train()

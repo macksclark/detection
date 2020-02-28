@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# cocoapi directory (sub-git repo)
+cocoapi/
+
 # C extensions
 *.so
 
